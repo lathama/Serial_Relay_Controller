@@ -21,171 +21,144 @@ Control Commands
 5 - Interlock
 
 Add user to dialout group for access to ttyS or ttyUSB devices
-
-Remove the Python path insert if you don't want to use it.
-Need to add a try except there.
 """
 
-import configparser
+import argparse
+import os
+from stat import S_ISCHR
 import sys
 import time
-sys.path.insert(3,'pyserial-3.5-py2.py3-none-any.whl')
-import serial # pylint: disable=import-error,wrong-import-position
+try:
+    sys.path.insert(3, 'pyserial-3.5-py2.py3-none-any.whl')
+    import serial # pylint: disable=import-error,wrong-import-position
+except ImportError:
+    import serial
 
+DEBUG = False
 
 class RelayController():
     """
     Relay Controller
     """
-    def __init__(self):
-        self.baudrate = 9600
-        self.channels = 8
-        self.configfile = 'relay.conf'
-        self.debug = False
-        self.serialdevice = '/dev/ttyS0'
-        self.config_load()
+    def __init__(
+        self,
+        device: str = '/dev/ttyUSB0',
+        baud: int = 9600,
+        channels: int = 4):
+        self.conf = {
+            'baud': baud,
+            'channels': channels,
+            'device': device}
+        self.operations = {
+            'on': 1,
+            'off': 2,
+            'toggle': 3,
+            'momentary': 4,
+            'interlock': 5}
+        self.check_device()
 
-    def config_load(self):
+    def channel_operation(self, channel: int = 1, operation: str = 'off'):
         """
-        Load config file if present
+        Operate on a single channel
         """
-        configuration = configparser.ConfigParser()
-        configuration.read(self.configfile)
-        if configuration['DEFAULT']['serialdevice']:
-            self.serialdevice = configuration['DEFAULT']['serialdevice']
-        if configuration['DEFAULT']['baudrate']:
-            self.baudrate = configuration['DEFAULT']['baudrate']
-        if configuration['DEFAULT']['channels']:
-            self.channels = int(configuration['DEFAULT']['channels'])
-        if configuration['DEFAULT']['debug']:
-            self.debug = configuration['DEFAULT']['debug']
-        return configuration['DEFAULT']
+        cmd = [0x55, 0x56, 0, 0, 0, channel, self.operations[operation], 0]
+        cmd[-1] = sum(cmd)
+        self.command_send(cmd)
+        print("Channel " + str(channel) + " sent operation: " + operation)
 
-    def config_show(self):
+    def channel_operation_all(self, operation: str = 'off', delay: int = 0):
         """
-        Print the parsed config to the standard output
+        Operate on a all channels
         """
-        print("Show Configuration File\n")
-        theconfig = self.config_load()
-        for entry in theconfig:
-            print("\t" + entry + ' = ' + theconfig[entry])
-        print("\n")
-
-    def channel_all_momentary(self, delay=0):
-        """
-        Momentary switch all channels
-        """
-        for channel in range(1, self.channels + 1):
-            self.channel_momentary(channel)
+        for channel in range(1, self.conf['channels'] + 1):
+            self.channel_operation(channel, operation)
             time.sleep(delay)
 
-    def channel_all_off(self, delay=0):
+    def check_device(self):
         """
-        Turn all channels off
+        Check that the serial device exists and the user has perms
+        This cold be done better
         """
-        for channel in range(1, self.channels + 1):
-            self.channel_off(channel)
-            time.sleep(delay)
+        try:
+            device = os.stat(self.conf['device']).st_mode
+            if not S_ISCHR(device):
+                print("Device not found")
+                sys.exit()
+        except FileNotFoundError:
+            print("Device not found")
+            sys.exit()
+        if not os.access(self.conf['device'], os.W_OK):
+            print("User lacks permission for device")
+            sys.exit()
 
-    def channel_all_on(self, delay=0):
-        """
-        Turn all channels on
-        """
-        for channel in range(1, self.channels + 1):
-            self.channel_on(channel)
-            time.sleep(delay)
-
-    def channel_all_toggle(self, delay=0):
-        """
-        Toggle all channels
-        """
-        for channel in range(1, self.channels + 1):
-            self.channel_toggle(channel)
-            time.sleep(delay)
-
-    def channel_interlock(self, channel):
-        """
-        Set the state of a channel to on and other channels off
-        This feature could be reversed on various models, test it out
-        """
-        command = [0x55,0x56,0,0,0,0,0,0]
-        command[5] = channel
-        command[6] = 5
-        command[-1] = sum(command)
-        self.command_send(command)
-        if self.debug:
-            print('Interlock channel ' + str(channel))
-
-    def channel_momentary(self, channel):
-        """
-        Set the state of a channel to momentary
-        on for 200ms then off
-        """
-        command = [0x55,0x56,0,0,0,0,0,0]
-        command[5] = channel
-        command[6] = 4
-        command[-1] = sum(command)
-        self.command_send(command)
-        if self.debug:
-            print('Momentary switch channel ' + str(channel))
-
-    def channel_off(self, channel):
-        """
-        Set the state of a channel to off
-        """
-        command = [0x55,0x56,0,0,0,0,0,0]
-        command[5] = channel
-        command[6] = 2
-        command[-1] = sum(command)
-        self.command_send(command)
-        if self.debug:
-            print('Turn off channel ' + str(channel))
-
-    def channel_on(self, channel):
-        """
-        Set the state of a channel to on
-        """
-        command = [0x55,0x56,0,0,0,0,0,0]
-        command[5] = channel
-        command[6] = 1
-        command[-1] = sum(command)
-        self.command_send(command)
-        if self.debug:
-            print('Turn on channel ' + str(channel))
-
-    def channel_read(self, channel):
-        """
-        Read the state of a channel
-        TODO implement some reading of the state
-        Not a lot or any data on what command 0 sends back
-        """
-        command = [0x55,0x56,0,0,0,0,0,0]
-        command[5] = channel
-        command[-1] = sum(command)
-        self.command_send(command)
-        if self.debug:
-            print('Read channel ' + str(channel))
-
-    def command_send(self, command):
+    def command_send(self, command: list):
         """
         Send command to serial device
         """
-        if self.debug:
-            print('\tThe command is ' + str(command))
-        relay = serial.Serial('/dev/ttyUSB0', baudrate=9600, timeout=2)
+        if DEBUG:
+            print("\tThe command is " + str(command))
+        relay = serial.Serial(
+            self.conf['device'], baudrate=self.conf['baud'], timeout=1)
         relay.write(command)
 
-    def channel_toggle(self, channel):
-        """
-        Set the state of a channel to toggle
-        """
-        command = [0x55,0x56,0,0,0,0,0,0]
-        command[5] = channel
-        command[6] = 3
-        command[-1] = sum(command)
-        self.command_send(command)
-        if self.debug:
-            print('Toggle channel ' + str(channel))
-
 if __name__ == '__main__':
-    print(help(RelayController))
+    cli = argparse.ArgumentParser(
+        description='Serial Relay Controller',
+        prog='Serial Relay Controller',
+        epilog='by Andrew lathama Latham')
+    groupa = cli.add_mutually_exclusive_group(required=True)
+    groupa.add_argument(
+        '-a', '--all',
+        action='store_true',
+        help='Select All Channels',
+        dest="all")
+    groupa.add_argument(
+        '-c', '--channel',
+        action='store',
+        type=int,
+        choices=range(1, 17),
+        help='Select Channel',
+        dest="channel")
+    cli.add_argument(
+        '-o', '--operation',
+        action='store',
+        type=str,
+        choices=['on', 'off', 'toggle', 'interlock', 'momentary'],
+        help='Select Operation to Perform',
+        dest="operation")
+    cli.add_argument(
+        '-b', '--baud',
+        action='store',
+        default=9600,
+        type=int,
+        help='Select Baud Rate. Defaults to 9600',
+        dest='baud')
+    cli.add_argument(
+        '-d', '--device',
+        action='store',
+        default='/dev/ttyUSB0',
+        type=str,
+        help='Select a Serial Device. Defaults to /dev/ttyUSB0',
+        dest='device')
+    cli.add_argument(
+        '-n', '--number',
+        action='store',
+        default=4,
+        type=int,
+        choices=range(1, 17),
+        help='Select Number of Channels. Defaults to 4',
+        dest="channels")
+    cli.add_argument(
+        '-v', '--verbose',
+        action='store_true',
+        help='Show debug info',
+        dest="verbose")
+    cli_entries = cli.parse_args(args=None if sys.argv[1:] else ['--help'])
+    if cli_entries.verbose:
+        DEBUG = True
+    if cli_entries.channel and cli_entries.operation:
+        relay_single = RelayController(device=cli_entries.device)
+        relay_single.channel_operation(cli_entries.channel, cli_entries.operation)
+    if cli_entries.all and cli_entries.operation:
+        relay_all = RelayController(device=cli_entries.device, channels=cli_entries.channels)
+        relay_all.channel_operation_all(cli_entries.operation)

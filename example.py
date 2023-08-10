@@ -7,12 +7,15 @@ import time
 from relay import RelayController
 
 if __name__ == '__main__':
-    myrelay = RelayController()
+    myrelay = RelayController(
+        device = '/dev/ttyUSB0',
+        baud = 9600,
+        channels = 8)
     myrelay.debug = True
     print("\nTurn on all channels\n")
-    myrelay.channel_all_on(1)
+    myrelay.channel_operation_all('on')
     print("\nWaiting a few seconds\n")
     time.sleep(3)
     print("Turn all the channels off\n")
-    myrelay.channel_all_off(1)
+    myrelay.channel_operation_all('off')
     print("\nThanks for using this example\n")
