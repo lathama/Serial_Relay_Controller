@@ -9,9 +9,9 @@ label on.
 
 ## Other labels silkscreened on the board:
 
-`R221A08`
-`8 Channel RS232 Relay`
-`eletechsup`
+* R221A08
+* 8 Channel RS232 Relay
+* eletechsup
 
 ## Serial Control Commands
 
@@ -103,8 +103,8 @@ Channel 1 sent operation: on
 
 ### FAQs
 
-Q: How can I run this as a user?
-A: Add user to dialout group for access to ttyS or ttyUSB devices
+* Q: How can I run this as a user?
+* A: Add user to dialout group for access to ttyS or ttyUSB devices
 
 ## Next Steps
 
@@ -117,3 +117,4 @@ A: Add user to dialout group for access to ttyS or ttyUSB devices
 * https://lathama.net/git/lathama/Serial_Relay_Controller
 * https://github.com/lathama/Serial_Relay_Controller
 * https://lathama.net/Making/Projects/Serial_Relay_Controller
+* https://schedule.readthedocs.io/en/stable/examples.html
