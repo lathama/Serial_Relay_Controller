@@ -118,3 +118,17 @@ Channel 1 sent operation: on
 * https://github.com/lathama/Serial_Relay_Controller
 * https://lathama.net/Making/Projects/Serial_Relay_Controller
 * https://schedule.readthedocs.io/en/stable/examples.html
+
+## Images
+
+Example serial relay I am using in testing
+
+![Example Relay 1](images/example_relay1.png "Example Relay 1")
+
+![Example Relay 2](images/example_relay2.png "Example Relay 2")
+
+![Example Relay 3](images/example_relay3.png "Example Relay 3")
+
+![Example Relay 4](images/example_relay4.png "Example Relay 4")
+
+![Example Relay 5](images/example_relay5.png "Example Relay 5")
