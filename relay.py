@@ -37,9 +37,7 @@ except ImportError:
 DEBUG = False
 
 class RelayController():
-    """
-    Relay Controller
-    """
+    """Relay Controller"""
     def __init__(
         self,
         device: str = '/dev/ttyUSB0',
@@ -58,25 +56,20 @@ class RelayController():
         self.check_device()
 
     def channel_operation(self, channel: int = 1, operation: str = 'off'):
-        """
-        Operate on a single channel
-        """
+        """Operate on a single channel"""
         cmd = [0x55, 0x56, 0, 0, 0, channel, self.operations[operation], 0]
         cmd[-1] = sum(cmd)
         self.command_send(cmd)
         print("Channel " + str(channel) + " sent operation: " + operation)
 
     def channel_operation_all(self, operation: str = 'off', delay: int = 0):
-        """
-        Operate on a all channels
-        """
+        """Operate on a all channels"""
         for channel in range(1, self.conf['channels'] + 1):
             self.channel_operation(channel, operation)
             time.sleep(delay)
 
     def check_device(self):
-        """
-        Check that the serial device exists and the user has perms
+        """Check that the serial device exists and the user has perms
         This cold be done better
         """
         try:
@@ -92,9 +85,7 @@ class RelayController():
             sys.exit()
 
     def command_send(self, command: list):
-        """
-        Send command to serial device
-        """
+        """Send command to serial device"""
         if DEBUG:
             print("\tThe command is " + str(command))
         relay = serial.Serial(

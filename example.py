@@ -3,8 +3,10 @@
 Serial relay example turns on all channels with delay then off with delay
 """
 
+import sys
 import time
 from relay import RelayController
+sys.dont_write_bytecode = True
 
 if __name__ == '__main__':
     myrelay = RelayController(

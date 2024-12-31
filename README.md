@@ -9,9 +9,9 @@ label on.
 
 ## Other labels silkscreened on the board:
 
-* R221A08
-* 8 Channel RS232 Relay
-* eletechsup
+- R221A08
+- 8 Channel RS232 Relay
+- eletechsup
 
 ## Serial Control Commands
 
@@ -103,21 +103,26 @@ Channel 1 sent operation: on
 
 ### FAQs
 
-* Q: How can I run this as a user?
-* A: Add user to dialout group for access to ttyS or ttyUSB devices
+- Q: How can I run this as a user?
+- A: Add user to dialout group for access to ttyS or ttyUSB devices
+   as root `usermod -a -G dialout username` and to activate the group
+   change without logging out do a `su - username` to switch user to
+   your user with the current env.
+
+- Q: Nothing is working, what is wrong?
+- A: Does the relay require external power? Mine needs 12V DC
 
 ## Next Steps
 
-1. Add Argparse for CLI operation
-1. Add schedule demo example
+1. Add HTTP API demo
 
 ## Resources
 
-* https://pyserial.readthedocs.io/en/latest/pyserial_api.html
-* https://lathama.net/git/lathama/Serial_Relay_Controller
-* https://github.com/lathama/Serial_Relay_Controller
-* https://lathama.net/Making/Projects/Serial_Relay_Controller
-* https://schedule.readthedocs.io/en/stable/examples.html
+- https://pyserial.readthedocs.io/en/latest/pyserial_api.html
+- https://lathama.net/git/lathama/Serial_Relay_Controller
+- https://github.com/lathama/Serial_Relay_Controller
+- https://lathama.net/Making/Projects/Serial_Relay_Controller
+- https://schedule.readthedocs.io/en/stable/examples.html
 
 ## Images
 
@@ -132,3 +137,11 @@ Example serial relay I am using in testing
 ![Example Relay 4](images/example_relay4.jpg "Example Relay 4")
 
 ![Example Relay 5](images/example_relay5.jpg "Example Relay 5")
+
+## Changelog
+
+### 2024-12-31
+- Update the schedule library whl, pyserial has had no update.
+- Update the README
+- Add gitignore
+- PEP 257 comments reduce file length

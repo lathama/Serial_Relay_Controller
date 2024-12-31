@@ -15,23 +15,20 @@ import sys
 import time
 from relay import RelayController
 try:
-    sys.path.insert(3, 'schedule-1.2.0-py2.py3-none-any.whl')
+    sys.path.insert(3, 'schedule-1.2.2-py3-none-any.whl')
     import schedule # pylint: disable=import-error,wrong-import-position
 except ImportError:
     import schedule
+sys.dont_write_bytecode = True
 
 def exterior_lights(operation):
-    """
-    Manage exterior lights
-    """
+    """Manage exterior lights"""
     myrelay = RelayController()
     print("Manage exterior lights. Operation: " + operation)
     myrelay.channel_operation(1, operation)
 
 def vent_fan(delay):
-    """
-    Manage vent fan
-    """
+    """Manage vent fan"""
     myrelay = RelayController()
     print("Manage vent fan")
     myrelay.channel_operation(2, 'on')
@@ -39,17 +36,13 @@ def vent_fan(delay):
     myrelay.channel_operation(2, 'off')
 
 def sprinkler_one(operation):
-    """
-    Control the sprinkler
-    """
+    """Control the sprinkler"""
     myrelay = RelayController()
     print("Manage sprinkler_one")
     myrelay.channel_operation(3, operation)
 
 def reboot_router(delay=10):
-    """
-    reboot the router
-    """
+    """reboot the router"""
     myrelay = RelayController()
     print("Reboot the router with a delay")
     myrelay.channel_operation(4, 'off')
