@@ -101,16 +101,15 @@ Channel 1 sent operation: on
 Channel 1 sent operation: on
 ```
 
-### FAQs
+## FAQs
 
-- Q: How can I run this as a user?
-- A: Add user to dialout group for access to ttyS or ttyUSB devices
-   as root `usermod -a -G dialout username` and to activate the group
-   change without logging out do a `su - username` to switch user to
-   your user with the current env.
+**Q: How can I run this as a user?**
+**A:** Add user to dialout group for access to ttyS or ttyUSB devices with
+`usermod -a -G dialout username` and to activate the group change without
+logging out do a `su - username` to switch user to your user with the env.
 
-- Q: Nothing is working, what is wrong?
-- A: Does the relay require external power? Mine needs 12V DC
+**Q: Nothing is working, what is wrong?**
+**A:** Does the relay require external power? Mine needs 12V DC
 
 ## Next Steps
 
@@ -141,6 +140,7 @@ Example serial relay I am using in testing
 ## Changelog
 
 ### 2024-12-31
+
 - Update the schedule library whl, pyserial has had no update.
 - Update the README
 - Add gitignore
