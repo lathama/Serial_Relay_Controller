@@ -147,3 +147,11 @@ Example serial relay I am using in testing
 - Update the README
 - Add gitignore
 - PEP 257 comments reduce file length
+
+
+## Thanks
+
+If you find this useful and want to say thanks I have an amazon wishlist
+
+- https://www.amazon.com/hz/wishlist/ls/1L2X1DMW98TCQ
+
